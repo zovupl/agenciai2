@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyfrowi Współpracownicy: Agenci AI — Dzień 2</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root{--ink:#0c0f0d;--paper:#f7f5f0;--card:#fff;--orange:#ff7e00;--os:#fff1e2;--green:#144525;--gs:#e9f1ec;--line:#e6e2d8;--text:#1c211e;--muted:#6f766f;--done:#1d7a43}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--text);font-family:'Figtree',system-ui,sans-serif;font-size:16px;line-height:1.65}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:4px}
+a{color:var(--green)}a:hover{text-decoration:underline}
+
+/* HEADER */
+.top{background:var(--ink);padding:16px 24px}
+.ti{max-width:1020px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.tl{height:48px}.tr{text-align:right}
+.tt{font-family:'Archivo',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;color:#fff;letter-spacing:.5px}
+.ts{font-size:12px;color:#b9beb6;margin-top:2px}.ts b{color:var(--orange)}
+
+/* PROGRESS */
+.ebar{position:sticky;top:0;z-index:40;background:rgba(247,245,240,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:9px 24px}
+.ebi{max-width:1020px;margin:0 auto}
+.ebr{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.ebl{font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--green)}
+.ebc{font-size:13px;color:var(--muted);font-weight:600}.ebc b{color:var(--orange);font-size:15px}
+.bar{margin-top:6px;height:11px;border-radius:99px;background:#e9e5da;overflow:hidden}
+.bf{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--orange) 60%,#ffb25e);border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+/* GLOSSARY BUTTON */
+.gBtn{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:90;background:var(--green);color:#fff;border:none;cursor:pointer;border-radius:10px 0 0 10px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:-3px 0 12px rgba(0,0,0,.15);transition:background .15s}
+.gBtn:hover{background:#1a5e32}
+.gBtn svg{width:20px;height:20px;fill:#fff}
+.gBtn span{font-family:'Archivo',sans-serif;font-weight:800;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl}
+
+/* GLOSSARY PANEL */
+.gPanel{position:fixed;right:-380px;top:0;height:100vh;width:360px;background:var(--card);z-index:95;box-shadow:-6px 0 28px rgba(0,0,0,.14);transition:right .3s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;overflow:hidden}
+.gPanel.open{right:0}
+
+/* PANEL TABS */
+.gPanelHead{background:var(--green);flex-shrink:0}
+.gTabRow{display:flex;border-bottom:1px solid rgba(255,255,255,.15)}
+.gTabBtn{flex:1;padding:12px 8px;border:none;background:transparent;color:rgba(255,255,255,.7);font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .15s;border-bottom:3px solid transparent}
+.gTabBtn.on{color:#fff;border-bottom-color:var(--orange)}
+.gClose{position:absolute;top:10px;right:12px;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:0 4px;line-height:1;z-index:1}
+
+/* SLOWNIK CONTENT */
+.gContent{flex:1;overflow-y:auto;display:none}
+.gContent.on{display:block}
+.gBody{padding:12px 16px 20px}
+.gSrchWrap{padding:4px 0 10px;position:sticky;top:0;background:var(--card);z-index:2}
+#gSearch{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 12px 8px 32px;font-family:'Figtree',sans-serif;font-size:14px;background:#f7f5f0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236f766f' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E") no-repeat 10px center;outline:none}
+#gSearch:focus{border-color:var(--orange);background-color:#fff;box-shadow:0 0 0 3px #ff7e0022}
+.gNoRes{padding:16px 0;text-align:center;color:var(--muted);font-size:14px;display:none}
+.gSec{font-family:'Archivo',sans-serif;font-weight:800;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--orange);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.gItem{padding:8px 0;border-bottom:1px solid #f0ece4}
+.gItem:last-child{border-bottom:none}
+.gItem strong{display:block;font-size:13.5px;color:var(--ink)}
+.gItem .gEn{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-top:1px}
+.gItem p{font-size:13px;color:#3c443e;margin-top:3px}
+
+/* SZYBKI TEST */
+.qBody{padding:12px 16px 24px}
+.qScore{display:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;text-align:center;padding:10px 14px;border-radius:10px;background:var(--gs);color:var(--green);margin-bottom:12px}
+.qScore.show{display:block}
+.qReset{display:block;width:100%;margin-bottom:12px;padding:8px;border:2px solid var(--green);border-radius:8px;background:transparent;color:var(--green);font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.qReset:hover{background:var(--gs)}
+.qItem{padding:10px 0;border-bottom:1px solid #f0ece4}
+.qItem:last-child{border-bottom:none}
+.qNum{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.qText{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.4}
+.qOpts{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.qOpt{padding:7px 9px;border:1px solid var(--line);border-radius:7px;cursor:pointer;font-size:12px;color:var(--text);transition:all .15s;text-align:left;background:#fcfbf7;line-height:1.3}
+.qOpt:hover{border-color:var(--orange);background:var(--os)}
+.qOpt.correct{background:#e9f1ec!important;border-color:var(--done)!important;color:var(--done)!important;font-weight:700;cursor:default}
+.qOpt.wrong{background:#fde8e8!important;border-color:#b3361c!important;color:#b3361c!important;cursor:default}
+.qOpt.disabled{cursor:default;opacity:.7}
+
+/* LAYOUT */
+.wrap{max-width:1020px;margin:0 auto;padding:26px 24px 70px}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin-bottom:22px;border-left:5px solid var(--orange)}
+.intro h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(19px,2.8vw,27px);color:var(--ink);line-height:1.2}
+.intro p{margin-top:8px;color:#3c443e;font-size:15px}
+.intro .r{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--muted)}
+.intro .r b{color:var(--green)}
+
+/* GAMMA */
+.gma{margin-bottom:24px}
+.gma summary{cursor:pointer;font-family:'Archivo',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--green);padding:11px 16px;background:var(--gs);border-radius:10px;list-style:none;display:flex;align-items:center;gap:8px;user-select:none;border:1px solid #c9ddd1}
+.gma summary::-webkit-details-marker{display:none}
+.gma summary::before{content:"▶";font-size:9px;transition:transform .2s;flex-shrink:0}
+.gma[open] summary::before{transform:rotate(90deg)}
+.gma .gif{border-radius:0 0 12px 12px;overflow:hidden;border:1px solid #c9ddd1;border-top:none}
+.gma iframe{width:100%;height:520px;border:none;display:block}
+
+/* TABS */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tab{flex:1;min-width:150px;text-align:left;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-family:'Figtree',sans-serif;transition:border-color .15s}
+.tab:hover{border-color:#c9c4b6}
+.tab .tn{font-family:'Archivo',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.tab .tk{font-weight:700;font-size:14px;color:var(--ink);margin-top:2px}
+.tab .th{font-size:11.5px;color:var(--muted);margin-top:1px}
+.tab.on{border:2px solid var(--orange);background:var(--os)}.tab.on .tn{color:var(--orange)}
+.panel{display:none}.panel.on{display:block}
+
+/* INSPIRE */
+.inspire{background:var(--ink);border-radius:12px;padding:16px 20px;margin:14px 0;color:#fff}
+.inspire h3{font-family:'Archivo',sans-serif;font-weight:800;font-size:14px;color:var(--orange);margin-bottom:10px;letter-spacing:.5px}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.igrid{grid-template-columns:1fr}}
+.icard{background:rgba(255,255,255,.07);border-radius:8px;padding:12px 14px}
+.icard strong{display:block;font-size:13px;color:#fff;margin-bottom:4px}
+.icard p{font-size:12.5px;color:#b9beb6;line-height:1.5}
+.icard a{color:var(--orange);font-size:12px;display:block;margin-top:6px;text-decoration:none}
+.icard a:hover{text-decoration:underline}
+
+/* EXERCISE CARD */
+.cw{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:20px;overflow:hidden;transition:border-color .25s}
+.cw.done{border-color:var(--done)}
+.cwh{padding:16px 20px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cwm{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:'Archivo',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.cwn{color:var(--orange)}.cwmod{background:var(--green);color:#fff;padding:2px 8px;border-radius:4px}
+.cwt{color:var(--muted)}
+.cwbadge{display:none;font-family:'Archivo',sans-serif;font-weight:800;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#fff;background:var(--done);padding:3px 9px;border-radius:99px;white-space:nowrap}
+.cw.done .cwbadge{display:inline-block}
+.cwtitle{font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(17px,2.2vw,22px);color:var(--ink);line-height:1.2;padding:2px 20px 0}
+.cwgoal{margin:9px 20px 0;padding:9px 13px;border-radius:8px;background:var(--gs);color:#143b22;font-size:14px}
+.cwgoal b{font-weight:700}
+.cwbody{padding:14px 20px 20px}
+
+/* STEPS */
+.sec{font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.step{display:flex;gap:11px;align-items:flex-start;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s}
+.step:hover{background:#faf8f3}
+.step input{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:21px;height:21px;margin-top:2px;cursor:pointer;border:2px solid #b9b3a3;border-radius:6px;background:#fff;display:grid;place-content:center;transition:all .15s}
+.step input::before{content:"";width:11px;height:11px;clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%);background:#fff;transform:scale(0);transition:transform .15s}
+.step input:checked{background:var(--orange);border-color:var(--orange)}
+.step input:checked::before{transform:scale(1)}
+.step span{font-size:15px}
+.step input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:#c9c4b6}
+
+/* PROMPT */
+.prom{margin:11px 0;border-radius:10px;overflow:hidden;border:1px solid #23282488}
+.pbar{background:#171b18;color:#9aa39a;display:flex;justify-content:space-between;align-items:center;padding:7px 13px;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-family:'Archivo',sans-serif;font-weight:700}
+.pcopy{font-family:'Figtree',sans-serif;font-weight:700;font-size:12px;background:var(--orange);color:#1a1206;border:none;border-radius:5px;padding:4px 12px;cursor:pointer;transition:all .15s}
+.pcopy:hover{background:#ff9226}.pcopy.cp{background:var(--done);color:#fff}
+.prom pre{background:var(--ink);color:#e8ece7;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;padding:13px 15px;white-space:pre-wrap;word-break:break-word}
+.prom pre b{color:#ffb25e;font-weight:500}
+
+/* NOTES */
+.notes textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:#fcfbf7;padding:11px 13px;font-family:'Figtree',sans-serif;font-size:14.5px;color:var(--text)}
+.notes textarea:focus{border-color:var(--orange);outline:none;box-shadow:0 0 0 3px #ff7e0022}
+.nh{font-size:12px;color:var(--muted);margin-top:4px}
+.sv{color:var(--done);font-weight:600;opacity:0;transition:opacity .3s}.sv.s{opacity:1}
+
+.hint{font-size:13.5px;color:var(--muted);background:#fbfaf6;border:1px dashed #d8d3c4;border-radius:8px;padding:9px 13px;margin:8px 0}
+.hint b{color:var(--green)}
+
+/* TOOLS */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px;margin:10px 0}
+.tool{border:1px solid var(--line);border-radius:9px;padding:10px 13px;background:#fcfbf7;text-decoration:none;display:block;transition:border-color .15s}
+.tool:hover{border-color:var(--orange)}
+.tool b{display:block;font-size:14px;color:var(--ink)}
+.tool .tu{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--orange);margin:2px 0 3px;display:block}
+.tool p{font-size:12.5px;color:var(--muted)}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{font-family:'Figtree',sans-serif;font-weight:700;font-size:14px;border:none;border-radius:10px;padding:11px 19px;cursor:pointer;transition:all .15s}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--ink);color:#fff}.bp:hover{background:#252b27}
+.bg{background:transparent;border:2px solid var(--ink);color:var(--ink)}.bg:hover{background:#0c0f0d0d}
+
+footer{background:var(--ink);color:#9aa39a;margin-top:30px;padding:20px 24px;font-size:13px}
+.fi{max-width:1020px;margin:0 auto;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+.fi b{color:#fff}.fi .o{color:var(--orange)}
+
+@media(max-width:640px){
+  .ti{justify-content:center;text-align:center}.tr{text-align:center}
+  .tabs{flex-direction:column}
+  .cwh{flex-direction:column}
+  .cwtitle,.cwgoal,.cwbody,.cwh{padding-left:14px;padding-right:14px}
+  .gPanel{width:100%}
+  .qOpts{grid-template-columns:1fr}
+}
+
+/* LOGO */
+.logopill{background:#fff;border-radius:9px;padding:6px 11px;display:inline-flex;align-items:center}
+.tl2{height:32px;display:block}
+/* SECOND SIDE BUTTON (Harmonogram) */
+#gBtn{top:41%}
+.hBtn{position:fixed;right:0;top:59%;transform:translateY(-50%);z-index:90;background:var(--orange);color:#1a1206;border:none;cursor:pointer;border-radius:10px 0 0 10px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:-3px 0 12px rgba(0,0,0,.15);transition:background .15s}
+.hBtn:hover{background:#ff9226}
+.hBtn svg{width:20px;height:20px;fill:#1a1206}
+.hBtn span{font-family:'Archivo',sans-serif;font-weight:800;font-size:9.5px;letter-spacing:2px;text-transform:uppercase;writing-mode:vertical-rl}
+/* THEORY */
+.teo{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:12px;padding:15px 19px;margin:13px 0}
+.teo h3{font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:var(--green);margin-bottom:7px;letter-spacing:.3px}
+.teo p{font-size:14.5px;color:#3c443e;margin:6px 0}
+.teo ul{margin:7px 0 3px;padding-left:19px}
+.teo li{font-size:14.5px;color:#3c443e;margin:4px 0}
+.teo b{color:var(--ink)}
+.igrid3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:600px){.igrid3{grid-template-columns:1fr}}
+/* EXAMPLE block (green bar, copyable) */
+.prom.ex .pbar{background:#123a22;color:#bfe0cd}
+.prom.ex pre{background:#0e2a19}
+/* FREE tag */
+.freetag{display:inline-block;font-family:'Archivo',sans-serif;font-weight:800;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--done);padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle}
+.paidtag{background:#b98a3e}
+/* TOOL LINE (w czym pracujesz) */
+.uses{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:#3c443e;background:#eef5f0;border:1px solid #cfe3d6;border-radius:8px;padding:8px 12px;margin:12px 0 6px}
+.uses b{color:var(--green);font-family:'Archivo',sans-serif;font-weight:800;font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
+.uses a{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:500}
+/* TIME chip on exercise headers */
+.xt{display:inline-block;font-family:'Archivo',sans-serif;font-weight:800;font-size:10px;color:var(--orange);background:var(--os);border:1px solid #ffd8ad;padding:1px 8px;border-radius:99px;margin-left:8px;text-transform:none;letter-spacing:0}
+/* EXTENSION box (dla szybkich) */
+.rozsz{font-size:13.5px;color:#3c443e;background:#fff6ec;border:1px solid #ffd8ad;border-left:4px solid var(--orange);border-radius:8px;padding:10px 13px;margin:10px 0}
+.rozsz b{color:#b3560c}
+/* SCHEDULE (in side panel) */
+.sched{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.schday{font-family:'Archivo',sans-serif;font-weight:800;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:var(--green);padding:9px 13px}
+.schday .d{display:block;color:#bfe0cd;font-weight:700;font-size:10px;margin-top:2px}
+.schrow{display:grid;grid-template-columns:74px 1fr 40px;gap:8px;align-items:center;padding:8px 13px;border-bottom:1px solid #f0ece4}
+.schrow:last-child{border-bottom:none}
+.schrow .tm{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink)}
+.schrow .nm{font-size:12.5px;color:var(--text)}
+.schrow .nm b{font-weight:700}
+.schrow .du{font-family:'Archivo',sans-serif;font-weight:700;font-size:10px;color:var(--muted);text-align:right}
+.schrow.br{background:#fbfaf6}.schrow.br .nm{color:var(--muted);font-size:11.5px}
+.schrow.ev{background:var(--os)}.schrow.ev .nm b{color:#b3560c}
+.schnow{font-size:12px;color:var(--muted);background:#fbfaf6;border:1px dashed #d8d3c4;border-radius:8px;padding:8px 11px;margin-bottom:12px}
+.schnow b{color:var(--green)}
+
+</style>
+</head>
+<body>
+
+<!-- SIDE BUTTONS -->
+<button class="gBtn" id="gBtn" aria-label="Słownik i Test">
+<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+<span>Słownik</span>
+</button>
+<button class="hBtn" id="hBtn" aria-label="Harmonogram">
+<svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+<span>Harmonogram</span>
+</button>
+
+<!-- SIDE PANEL -->
+<div class="gPanel" id="gPanel">
+<div class="gPanelHead" style="position:relative">
+  <div class="gTabRow">
+    <button class="gTabBtn on" data-gtab="slownik">📖 Słownik</button>
+    <button class="gTabBtn" data-gtab="test">⚡ Test</button>
+    <button class="gTabBtn" data-gtab="harmonogram">🗓 Plan</button>
+  </div>
+  <button class="gClose" id="gClose">×</button>
+</div>
+<div class="gContent on" id="gc-slownik">
+<div class="gBody">
+<div class="gSrchWrap"><input type="search" id="gSearch" placeholder="Szukaj… np. Agent, Gems, granice" autocomplete="off"></div>
+<div class="gNoRes" id="gNoRes">Brak wyników dla „<span id="gQ"></span>”</div>
+<div class="gSec">Podstawy — Agenci AI</div>
+<div class="gItem"><strong>Agent AI</strong><span class="gEn">AI Agent</span><p>Program, który samodzielnie realizuje cel: planuje kroki, podejmuje decyzje i wykonuje zadania, korzystając z narzędzi. Dostaje CEL, nie pojedyncze polecenie.</p></div>
+<div class="gItem"><strong>Chatbot</strong><span class="gEn">Classic chatbot</span><p>Odpowiada na pojedyncze pytania według scenariusza. Czeka na każdą komendę — nie działa z własnej inicjatywy.</p></div>
+<div class="gItem"><strong>Autonomia</strong><span class="gEn">Autonomy</span><p>Agent działa samodzielnie w ramach wyznaczonych granic — sam dobiera kolejne kroki.</p></div>
+<div class="gItem"><strong>Adaptacyjność</strong><span class="gEn">Adaptability</span><p>Dostosowuje się do nowych informacji i zmian sytuacji w trakcie zadania.</p></div>
+<div class="gItem"><strong>Współpraca</strong><span class="gEn">Collaboration</span><p>Potrafi działać z innymi agentami i z człowiekiem w jednym procesie.</p></div>
+<div class="gItem"><strong>Instrukcja systemowa</strong><span class="gEn">System prompt</span><p>„Umowa o pracę” agenta: rola, cel, kontekst, zasady, granice i format. Fundament zachowania agenta.</p></div>
+<div class="gSec">Typy agentów</div>
+<div class="gItem"><strong>Agent reaktywny</strong><span class="gEn">Reactive</span><p>Reaguje na zdarzenia według prostych reguł, bez planowania. Np. automatyczna odpowiedź na FAQ.</p></div>
+<div class="gItem"><strong>Agent deliberatywny</strong><span class="gEn">Deliberative</span><p>Planuje i analizuje wiele kroków przed działaniem. Np. raport, harmonogram, analiza ofert.</p></div>
+<div class="gItem"><strong>Agent hybrydowy</strong><span class="gEn">Hybrid</span><p>Łączy szybką reakcję z planowaniem. Np. pełna obsługa zapytania klienta od A do Z.</p></div>
+<div class="gSec">Projektowanie agenta</div>
+<div class="gItem"><strong>CEL</strong><span class="gEn">Goal</span><p>Po co agent istnieje — jedno zdanie. Punkt wyjścia całego projektowania.</p></div>
+<div class="gItem"><strong>ROLA</strong><span class="gEn">Role</span><p>Kim jest agent i dla kogo pracuje.</p></div>
+<div class="gItem"><strong>Kontekst i wiedza</strong><span class="gEn">Context & knowledge</span><p>Co agent musi wiedzieć o firmie: produkty, ceny, procedury, ton.</p></div>
+<div class="gItem"><strong>Zasady</strong><span class="gEn">Rules</span><p>Priorytety, ton i format odpowiedzi. Pisz konkretnie („max 5 zdań”, nie „krótko”).</p></div>
+<div class="gItem"><strong>Granice</strong><span class="gEn">Guardrails</span><p>Czego agent nie robi i kiedy przekazuje sprawę człowiekowi.</p></div>
+<div class="gItem"><strong>Eskalacja</strong><span class="gEn">Escalation</span><p>Reguła: kiedy i jak agent oddaje sprawę człowiekowi (np. reklamacje, rabaty).</p></div>
+<div class="gItem"><strong>Human-in-the-loop</strong><span class="gEn">Człowiek w pętli</span><p>Człowiek nadzoruje agenta i zatwierdza kluczowe decyzje przed realizacją.</p></div>
+<div class="gSec">Narzędzia (bezpłatne)</div>
+<div class="gItem"><strong>Gemini Gems</strong><span class="gEn">Google — bezpłatne</span><p>Własny agent Google — wystarczy konto Google. Podstawowe narzędzie do budowy agenta na tym szkoleniu.</p></div>
+<div class="gItem"><strong>NotebookLM</strong><span class="gEn">Google — bezpłatne</span><p>Agent-researcher: wrzucasz źródła, dostajesz analizy i odpowiedzi oparte wyłącznie na nich.</p></div>
+<div class="gItem"><strong>Perplexity</strong><span class="gEn">bezpłatne (plan free)</span><p>Szybki research rynku z podanymi źródłami.</p></div>
+<div class="gItem"><strong>ChatGPT</strong><span class="gEn">bezpłatne / Plus</span><p>Rozmowa z AI. Uwaga: własny Custom GPT wymaga płatnego planu Plus.</p></div>
+<div class="gItem"><strong>Claude</strong><span class="gEn">bezpłatne / Pro</span><p>Rozmowa i analiza plików. Projekty w pełni dostępne w planie Pro.</p></div>
+<div class="gItem"><strong>LLM</strong><span class="gEn">Large Language Model</span><p>Duży model językowy (Gemini, GPT, Claude) — silnik, na którym działa agent.</p></div>
+<div class="gItem"><strong>Prompt</strong><span class="gEn">Polecenie dla AI</span><p>Instrukcja tekstowa dla AI. Im konkretniejszy prompt, tym lepszy wynik.</p></div>
+<div class="gSec">Bezpieczeństwo</div>
+<div class="gItem"><strong>Halucynacja</strong><span class="gEn">Hallucination</span><p>Pewnie brzmiąca, ale nieprawdziwa odpowiedź AI. Dlatego testuj „podchwytliwymi” pytaniami i weryfikuj.</p></div>
+<div class="gItem"><strong>Dane osobowe / RODO</strong><span class="gEn">GDPR</span><p>Nie wklejaj pełnych danych osobowych klientów do publicznych narzędzi AI. Minimalizuj dane.</p></div>
+<div class="gItem"><strong>Iteracja</strong><span class="gEn">Iteration</span><p>Żadna instrukcja nie jest dobra w pierwszej wersji — testuj, poprawiaj, testuj ponownie.</p></div>
+<div class="gItem"><strong>Dostępy</strong><span class="gEn">Access</span><p>Agent nie zna haseł, danych płatniczych ani dokumentów poufnych. Dajesz mu tylko to, co niezbędne.</p></div>
+<div class="gItem"><strong>Baza wiedzy</strong><span class="gEn">Knowledge base</span><p>To, na czym opiera się agent: cenniki, FAQ, opisy usług — nigdy dane osobowe klientów.</p></div>
+<div class="gSec">No-code i integracje (Dzień 2)</div>
+<div class="gItem"><strong>No-code</strong><span class="gEn">bez kodu</span><p>Łączenie aplikacji i budowa automatyzacji bez programowania — klikając gotowe moduły.</p></div>
+<div class="gItem"><strong>Make.com</strong><span class="gEn">no-code, bezpłatne 1000 operacji/mies.</span><p>Wizualne scenariusze automatyzacji. Łączysz Gmail, Sheets, Gemini i inne aplikacje w jeden przepływ.</p></div>
+<div class="gItem"><strong>Zapier</strong><span class="gEn">no-code, tysiące szablonów</span><p>Najprostszy start w automatyzacji — gotowe szablony „gdy X, zrób Y”.</p></div>
+<div class="gItem"><strong>Trigger (wyzwalacz)</strong><span class="gEn">Trigger</span><p>Zdarzenie, które uruchamia scenariusz: nowy mail, nowy wiersz w arkuszu, wypełniony formularz.</p></div>
+<div class="gItem"><strong>Akcja</strong><span class="gEn">Action</span><p>To, co scenariusz robi po wyzwalaczu: zapisz dane, wyślij mail, wygeneruj tekst AI.</p></div>
+<div class="gItem"><strong>Scenariusz</strong><span class="gEn">Scenario / Zap</span><p>Cały przepływ: wyzwalacz + kolejne akcje. Działa automatycznie w tle 24/7.</p></div>
+<div class="gItem"><strong>Webhook</strong><span class="gEn">Web callback</span><p>Automatyczne powiadomienie z jednej aplikacji do drugiej w chwili zdarzenia — częsty wyzwalacz.</p></div>
+<div class="gItem"><strong>API / klucz API</strong><span class="gEn">Application Programming Interface</span><p>Sposób, w jaki aplikacje się łączą. Bezpłatny klucz do Gemini zdobędziesz w Google AI Studio.</p></div>
+<div class="gItem"><strong>Google Sheets (jako baza)</strong><span class="gEn">arkusz jako baza danych</span><p>Prosty, darmowy „magazyn” zgłoszeń: każdy nowy wiersz może uruchamiać automatyzację.</p></div>
+<div class="gItem"><strong>ManyChat</strong><span class="gEn">auto-odpowiedzi IG/FB, plan bezpłatny</span><p>Automatyzuje odpowiedzi na wiadomości na Instagramie i Facebooku (np. na słowo „pergola”).</p></div>
+<div class="gItem"><strong>Follow-up</strong><span class="gEn">kontakt po realizacji</span><p>Wiadomość po sprzedaży/montażu: prośba o opinię, przypomnienie, kolejna oferta — świetne zadanie dla agenta.</p></div>
+</div>
+</div>
+<div class="gContent" id="gc-test">
+<div class="qBody"><div class="qScore" id="qScore"></div><button class="qReset" id="qReset">🔄 Zacznij test od nowa</button><div id="quizContainer"></div></div>
+</div>
+<div class="gContent" id="gc-harmonogram">
+<div class="gBody">
+<div class="schnow"><b>1 h szkoleniowa = 45 min.</b> Przerwy nie są wliczane do czasu szkolenia. Prowadzący: Matsvei Dzmitryieu.</div>
+<div class="sched"><div class="schday">DZIEŃ 1 — Podstawy i projektowanie<span class="d">04.07.2026 · 8h</span></div>
+<div class="schrow"><span class="tm">09:00–10:30</span><span class="nm"><b>M1:</b> Czym są Agenci AI</span><span class="du">1:30</span></div>
+<div class="schrow br"><span class="tm">10:30–10:45</span><span class="nm">Przerwa</span><span class="du">15</span></div>
+<div class="schrow"><span class="tm">10:45–12:15</span><span class="nm"><b>M2:</b> Myślenie agentowe i projektowanie</span><span class="du">1:30</span></div>
+<div class="schrow br"><span class="tm">12:15–12:45</span><span class="nm">Przerwa</span><span class="du">30</span></div>
+<div class="schrow"><span class="tm">12:45–14:15</span><span class="nm"><b>M3:</b> Budowa agenta krok po kroku</span><span class="du">1:30</span></div>
+<div class="schrow br"><span class="tm">14:15–14:30</span><span class="nm">Przerwa</span><span class="du">15</span></div>
+<div class="schrow"><span class="tm">14:30–16:00</span><span class="nm"><b>M4:</b> Agenci w pracy indywidualnej</span><span class="du">1:30</span></div>
+</div>
+<div class="sched"><div class="schday">DZIEŃ 2 — Automatyzacja i wdrożenia<span class="d">05.07.2026 · 8h</span></div>
+<div class="schrow"><span class="tm">09:00–10:30</span><span class="nm"><b>M5:</b> Agenci w zespołach</span><span class="du">1:30</span></div>
+<div class="schrow br"><span class="tm">10:30–10:45</span><span class="nm">Przerwa</span><span class="du">15</span></div>
+<div class="schrow"><span class="tm">10:45–12:15</span><span class="nm"><b>M6:</b> Integracje i no-code</span><span class="du">1:30</span></div>
+<div class="schrow br"><span class="tm">12:15–12:30</span><span class="nm">Przerwa</span><span class="du">15</span></div>
+<div class="schrow"><span class="tm">12:30–14:00</span><span class="nm"><b>M7:</b> Bezpieczeństwo i etyka</span><span class="du">1:30</span></div>
+<div class="schrow br"><span class="tm">14:00–14:15</span><span class="nm">Przerwa</span><span class="du">15</span></div>
+<div class="schrow"><span class="tm">14:15–15:00</span><span class="nm"><b>M8:</b> Projekt końcowy</span><span class="du">45</span></div>
+<div class="schrow ev"><span class="tm">15:00–15:45</span><span class="nm"><b>Ewaluacja</b> — test online</span><span class="du">45</span></div>
+</div>
+</div>
+</div>
+</div><!-- /gPanel -->
+
+<header class="top">
+  <div class="ti">
+    <span class="logopill"><img class="tl2" src="energia-logo.png" alt="Energia dla Biznesu"></span>
+    <div class="tr">
+      <div class="tt">Cyfrowi Współpracownicy: Agenci AI</div>
+      <div class="ts">Dzień 2 · <b>Automatyzacja i wdrożenia</b></div>
+    </div>
+  </div>
+</header>
+
+<div class="ebar"><div class="ebi"><div class="ebr">
+  <span class="ebl">⚡ Postęp</span>
+  <span class="ebc"><b id="pct">0%</b> · <span id="dc">0</span>/<span id="tc">0</span> kroków</span>
+</div><div class="bar"><div class="bf" id="bf"></div></div></div></div>
+
+<main class="wrap">
+
+<section class="intro">
+  <h1>Dzień 2: Twój agent zaczyna<br>naprawdę pracować.</h1>
+  <p>Dziś agent wychodzi z okna czatu i działa w Twoich narzędziach: skanuje skrzynkę Gmail, zapisuje zgłoszenia do arkusza, przygotowuje szkice odpowiedzi, a nawet odpowiada w Instagramie i Facebooku. Zbudujesz drugiego agenta i pierwsze automatyzacje w Make — wszystko na bezpłatnych narzędziach. Efekt zobaczysz i „dotkniesz”, nie tylko przeczytasz.</p>
+  <div class="r"><b>Po prawej:</b> 📖 Słownik · ⚡ Szybki Test · 🗓 Harmonogram — kliknij, by rozwinąć. Moduły przełączasz zakładkami poniżej (na górze i na dole każdej strony).</div>
+</section>
+
+<details class="gma" open>
+  <summary>📊 Prezentacja szkoleniowa — Dzień 1 · otwórz i korzystaj przez cały dzień</summary>
+  <div class="gif"><iframe src="Cyfrowi-Wspolpracownicy-Dzien-2.pdf" title="Prezentacja — Dzień 2"></iframe></div>
+</details>
+
+<div class="schnow" style="margin-bottom:22px">🔧 <b>Kontynuujesz z Dnia 1:</b> potrzebny będzie Twój agent (Gem) z wczoraj. Test końcowy (POSTTEST) czeka na Ciebie na końcu Modułu 8.</div>
+
+<div class="tabs" role="tablist"><button class="tab on" data-panel="p1"><span class="tn">Moduł 5</span><span class="tk">Agent w zespole</span><span class="th">Gmail · Kalendarz · 2. agent</span></button><button class="tab" data-panel="p2"><span class="tn">Moduł 6</span><span class="tk">Integracje no-code</span><span class="th">Make · Gmail → Sheets · IG</span></button><button class="tab" data-panel="p3"><span class="tn">Moduł 7</span><span class="tk">Bezpieczeństwo i etyka</span><span class="th">Audyt · RODO · halucynacje</span></button><button class="tab" data-panel="p4"><span class="tn">Moduł 8</span><span class="tk">Projekt końcowy</span><span class="th">System · materiały · test</span></button></div>
+
+<div class="panel on" id="p1">
+<article class="cw" data-cw="Moduł5">
+<div class="cwh"><div class="cwm"><span class="cwn">Moduł 5</span><span class="cwmod">Zespoły + Gmail/Kalendarz</span><span class="cwt">~1:30</span></div><span class="cwbadge">✓ Ukończone</span></div>
+<h2 class="cwtitle">Agenci AI w zespołach i organizacjach</h2>
+<p class="cwgoal"><b>Cel:</b> Zamienisz agenta w „nowego pracownika”: połączysz Gemini z Twoim Gmailem i Kalendarzem na żywo, zbudujesz drugiego agenta i rozpiszesz proces z podziałem człowiek–agent.</p>
+<div class="cwbody">
+<div class="teo"><h3>Agent jak nowy pracownik</h3><p>Delegowanie zadań agentowi działa jak delegowanie pracownikowi. Pamiętaj: agent nie domyśli się kontekstu — czego nie zapiszesz w instrukcji, dla niego nie istnieje.</p><ul><li><b>BRIEF</b> — co robi, na jakich danych, w jakim formacie oddaje wynik</li><li><b>GRANICE</b> — czego nie decyduje samodzielnie</li><li><b>KONTROLA</b> — jak sprawdzasz jakość, zanim wynik trafi do klienta</li></ul></div>
+<div class="inspire"><h3>Human-in-the-loop — podział pracy</h3><div class="igrid igrid3"><div class="icard"><strong>🤖 Agent przygotowuje</strong><p>Szkic odpowiedzi, wstępna wycena, propozycja terminu</p></div><div class="icard"><strong>🧑 Człowiek zatwierdza</strong><p>Akceptacja przed wysłaniem, cena końcowa, obietnice wobec klienta</p></div><div class="icard"><strong>📈 Zaufanie rośnie</strong><p>Najpierw wszystko z akceptacją, potem samodzielność w prostych sprawach</p></div></div></div>
+<div class="sec">Ćwiczenie 5A · Brief dla agenta <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini Gems — <a href="https://gemini.google.com/gems/view" target="_blank">gemini.google.com/gems/view</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Otwórz swojego agenta z Dnia 1 (Gem obsługi zapytań).</span></label><label class="step"><input type="checkbox" data-step><span>Dopisz w instrukcji krótki BRIEF: co robi, na jakich danych, w jakim formacie oddaje wynik.</span></label><label class="step"><input type="checkbox" data-step><span>Dodaj sekcję GRANICE (czego nie decyduje sam) i KONTROLA (co Ty sprawdzasz przed wysłaniem).</span></label>
+<div class="sec">Ćwiczenie 5B · Skaner skrzynki: Gemini czyta Twój Gmail na żywo <span class='xt'>~15 min</span></div>
+<div class="hint"><b>Wymaga:</b> aplikacja Gemini z włączonymi <b>Aplikacjami/Rozszerzeniami</b> (Google Workspace / Gmail). Bezpłatne — wystarczy konto Google.</div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini (Aplikacje) — <a href="https://gemini.google.com" target="_blank">gemini.google.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Wejdź na gemini.google.com → <b>Ustawienia → Aplikacje (Rozszerzenia)</b> → włącz <b>Google Workspace / Gmail</b>.</span></label><label class="step"><input type="checkbox" data-step><span>Wklej prompt poniżej — Gemini przeczyta Twoją prawdziwą skrzynkę i zrobi porządek.</span></label><label class="step"><input type="checkbox" data-step><span>Sprawdź wynik: to już realne działanie agenta na Twoich danych, nie teoria.</span></label>
+<div class="prom"><div class="pbar"><span>Prompt — Skaner skrzynki (Gmail)</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>@Gmail Przejrzyj moje maile z ostatnich 7 dni. Wypisz w tabeli: nadawca | temat | czego dotyczy | czy wymaga odpowiedzi (tak/nie) | priorytet (wysoki/średni/niski). Na końcu wskaż 3 maile, na które warto odpowiedzieć najpierw.</pre></div>
+<div class="sec">Ćwiczenie 5C · Agent i Kalendarz <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini (Aplikacje) — <a href="https://gemini.google.com" target="_blank">gemini.google.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Włącz rozszerzenie <b>Google Calendar</b> (jeśli jeszcze nie jest włączone).</span></label><label class="step"><input type="checkbox" data-step><span>Wklej prompt — Gemini spojrzy w Twój kalendarz i zaproponuje plan.</span></label><label class="step"><input type="checkbox" data-step><span>Zdecyduj, które okna zablokować na pomiary (Ty zatwierdzasz — human-in-the-loop).</span></label>
+<div class="prom"><div class="pbar"><span>Prompt — Plan i wolne sloty</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>@Google Calendar Pokaż mój plan na najbliższe 3 dni i zaproponuj 3 wolne okna po 2 godziny, w których mogę pojechać do klientów na pomiar. Uwzględnij czas na dojazd.</pre></div>
+<div class="sec">Ćwiczenie 5D · Zbuduj DRUGIEGO agenta: Follow-up i opinie <span class='xt'>~15 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini Gems — <a href="https://gemini.google.com/gems/view" target="_blank">gemini.google.com/gems/view</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Utwórz nowego Gema: „Follow-up i opinie”.</span></label><label class="step"><input type="checkbox" data-step><span>Wklej instrukcję z przykładu poniżej (dostosuj do siebie).</span></label><label class="step"><input type="checkbox" data-step><span>Przetestuj: poproś o wiadomość follow-up po zamontowanej pergoli.</span></label><label class="step"><input type="checkbox" data-step><span>Masz teraz zespół dwóch agentów: obsługa zapytań + follow-up.</span></label>
+<div class="prom ex"><div class="pbar"><span>📋 Instrukcja drugiego agenta — Follow-up (pergole)</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>ROLA: Jesteś asystentem follow-up firmy montującej pergole ogrodowe.
+CEL: Po realizacji pisać krótką, ciepłą wiadomość z podziękowaniem, prośbą o opinię (Google/Instagram) i delikatną propozycją poleceń.
+ZASADY: Ton serdeczny, max 5 zdań, jedno wyraźne wezwanie (np. link do opinii). Personalizuj imieniem.
+GRANICE: Nie obiecujesz rabatów. Nie piszesz do klienta więcej niż 2 razy. Reklamacje → przekazujesz właścicielowi.</pre></div>
+<div class="sec">Ćwiczenie 5E · Mapa procesu end-to-end <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini — <a href="https://gemini.google.com" target="_blank">gemini.google.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Wybierz jeden proces (np. „od zapytania do podpisania umowy”).</span></label><label class="step"><input type="checkbox" data-step><span>Rozpisz go na 6–8 kroków.</span></label><label class="step"><input type="checkbox" data-step><span>Przy każdym kroku oznacz: HUMAN / AGENT / AGENT+APPROVAL.</span></label><label class="step"><input type="checkbox" data-step><span>Zaznacz checkpointy human-in-the-loop (gdzie Ty musisz zatwierdzić).</span></label>
+<div class="prom"><div class="pbar"><span>Prompt — Mapa procesu z podziałem ról</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>Rozpisz proces „od zapytania klienta do podpisania umowy” w firmie montującej pergole na 6–8 kroków. Dla każdego kroku podaj w tabeli: krok | wykonawca (HUMAN / AGENT / AGENT+APPROVAL) | co dokładnie robi | czy potrzebna akceptacja człowieka.</pre></div>
+<div class="rozsz">🚀 <b>Rozszerzenie (dla szybkich):</b> dodaj do mapy drugą kolumnę: które kroki da się zautomatyzować w Make (zrobisz to w Module 6).</div>
+<div class="notes"><textarea data-notes placeholder="Mój brief + drugi agent (follow-up) + mapa procesu: …"></textarea><div class="nh">Zapisuje się automatycznie. <span class="sv">✓ zapisano</span></div></div>
+</div></article>
+<div class="tabs tabs-bottom" role="tablist"><button class="tab" data-panel="p1"><span class="tn">Moduł 5</span><span class="tk">Agent w zespole</span><span class="th">Gmail · Kalendarz · 2. agent</span></button><button class="tab" data-panel="p2"><span class="tn">Moduł 6</span><span class="tk">Integracje no-code</span><span class="th">Make · Gmail → Sheets · IG</span></button><button class="tab" data-panel="p3"><span class="tn">Moduł 7</span><span class="tk">Bezpieczeństwo i etyka</span><span class="th">Audyt · RODO · halucynacje</span></button><button class="tab" data-panel="p4"><span class="tn">Moduł 8</span><span class="tk">Projekt końcowy</span><span class="th">System · materiały · test</span></button></div>
+</div>
+<div class="panel" id="p2">
+<article class="cw" data-cw="Moduł6">
+<div class="cwh"><div class="cwm"><span class="cwn">Moduł 6</span><span class="cwmod">Make · automatyzacja</span><span class="cwt">~1:30</span></div><span class="cwbadge">✓ Ukończone</span></div>
+<h2 class="cwtitle">Integracje i narzędzia no-code</h2>
+<p class="cwgoal"><b>Cel:</b> Zbudujesz działające automatyzacje w Make (bezpłatnie): od prostego scenariusza, przez skaner Gmaila do arkusza, po automatyczne szkice odpowiedzi i auto-odpowiedzi na Instagramie.</p>
+<div class="cwbody">
+<div class="teo"><h3>No-code = łączysz aplikacje bez programowania</h3><p>Make (plan bezpłatny 1000 operacji/mies.) i Zapier pozwalają połączyć Gmail, arkusze, Gemini i social media w jeden przepływ działający 24/7.</p><ul><li><b>Make.com</b> — wizualne scenariusze, duża elastyczność, bezpłatne 1000 operacji/miesiąc</li><li><b>Zapier</b> — najprostszy start, tysiące gotowych szablonów</li></ul></div>
+<div class="inspire"><h3>Anatomia każdego scenariusza</h3><div class="igrid igrid3"><div class="icard"><strong>1. TRIGGER (wyzwalacz)</strong><p>„Coś się wydarzyło” — nowy mail, nowy wiersz w arkuszu, wypełniony formularz</p></div><div class="icard"><strong>2. AKCJE</strong><p>„Zrób coś” — zapisz dane, wyślij powiadomienie, wygeneruj tekst z AI</p></div><div class="icard"><strong>Przykład end-to-end</strong><p>Formularz → Google Sheets → Make wykrywa wiersz → AI pisze szkic odpowiedzi</p></div></div></div>
+<div class="sec">Ćwiczenie 6A · Pierwszy scenariusz w Make <span class='xt'>~20 min</span></div>
+<div class="hint"><b>Wymaga:</b> bezpłatne konto na <b>make.com</b> (logowanie kontem Google).</div>
+<div class="uses">🔧 <b>Narzędzie:</b> Make.com — <a href="https://www.make.com" target="_blank">make.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Przygotuj arkusz Google Sheets „Zapytania” z kolumnami: Imię | Kontakt | Temat.</span></label><label class="step"><input type="checkbox" data-step><span>Załóż bezpłatne konto na <a href='https://www.make.com' target='_blank'>make.com</a> → <b>Create a new scenario</b>.</span></label><label class="step"><input type="checkbox" data-step><span>Dodaj wyzwalacz: <b>Google Sheets → Watch New Rows</b> (wskaż swój arkusz).</span></label><label class="step"><input type="checkbox" data-step><span>Dodaj akcję: <b>Gmail → Send an email</b> z danymi z nowego wiersza.</span></label><label class="step"><input type="checkbox" data-step><span>Kliknij <b>Run once</b> → wpisz testowy wiersz w arkuszu → sprawdź, czy przyszedł mail. Działa!</span></label>
+<div class="sec">Ćwiczenie 6B · Dodaj krok AI — agent pisze szkic <span class='xt'>~15 min</span></div>
+<div class="hint"><b>Bezpłatny klucz API do Gemini:</b> wejdź na <b>aistudio.google.com</b> → <b>Get API key</b> → skopiuj. Za darmo.</div>
+<div class="uses">🔧 <b>Narzędzie:</b> Google AI Studio — <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>W scenariuszu z 6A dodaj między wyzwalaczem a mailem moduł <b>Google Gemini AI</b> (wklej klucz z AI Studio).</span></label><label class="step"><input type="checkbox" data-step><span>W polu prompt wklej treść poniżej — użyj danych z wiersza ({{...}}).</span></label><label class="step"><input type="checkbox" data-step><span>Zmień akcję maila tak, aby wysyłała wygenerowany szkic do Ciebie do zatwierdzenia.</span></label><label class="step"><input type="checkbox" data-step><span>Run once → sprawdź gotowy szkic odpowiedzi w mailu.</span></label>
+<div class="prom"><div class="pbar"><span>Prompt do modułu AI w Make</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>Napisz uprzejmy szkic odpowiedzi po polsku do klienta pytającego o pergolę.
+Klient: {{Imię}}. Temat zapytania: {{Temat}}.
+Zaproponuj bezpłatny pomiar i podaj orientacyjnie „od 1200 zł/m²”. Maksymalnie 6 zdań. Nie podawaj ceny końcowej.</pre></div>
+<div class="sec">Ćwiczenie 6C · Skaner Gmaila → Google Sheets <span class='xt'>~15 min</span></div>
+<div class="hint"><b>Wymaga:</b> konto Make + połączenie <b>Gmail</b> i <b>Google Sheets</b> (bezpłatne, autoryzacja kontem Google).</div>
+<div class="uses">🔧 <b>Narzędzie:</b> Make.com — <a href="https://www.make.com" target="_blank">make.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Nowy scenariusz → wyzwalacz <b>Gmail → Watch emails</b> (np. maile z określonej etykiety lub od klientów).</span></label><label class="step"><input type="checkbox" data-step><span>Akcja: <b>Google Sheets → Add a Row</b> — zapisz: nadawca, temat, data, krótki fragment treści.</span></label><label class="step"><input type="checkbox" data-step><span>Run once → wyślij sobie testowego maila → zobacz, jak sam pojawia się w arkuszu.</span></label><label class="step"><input type="checkbox" data-step><span>Masz skaner skrzynki: każdy nowy mail ląduje w tabeli automatycznie.</span></label>
+<div class="sec">Ćwiczenie 6D · Auto-szkic odpowiedzi w Gmailu (human-in-the-loop) <span class='xt'>~15 min</span></div>
+<div class="hint">Agent tworzy <b>SZKIC (draft)</b>, nie wysyła sam. Ty czytasz i klikasz „wyślij”.</div>
+<div class="uses">🔧 <b>Narzędzie:</b> Make.com — <a href="https://www.make.com" target="_blank">make.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Rozbuduj scenariusz 6C: po wyzwalaczu Gmail dodaj moduł <b>Google Gemini AI</b> (szkic odpowiedzi).</span></label><label class="step"><input type="checkbox" data-step><span>Dodaj akcję <b>Gmail → Create a Draft</b> z wygenerowaną treścią.</span></label><label class="step"><input type="checkbox" data-step><span>Run once → wyślij sobie testowego maila → sprawdź gotowy szkic w folderze Wersje robocze.</span></label><label class="step"><input type="checkbox" data-step><span>Ty tylko przeglądasz i wysyłasz — agent odrobił pracę za Ciebie.</span></label>
+<div class="sec">Ćwiczenie 6E · Auto-odpowiedź na Instagramie i Facebooku <span class='xt'>~15 min</span></div>
+<div class="hint"><b>Wymaga:</b> bezpłatne konto na <b>manychat.com</b> + profil <b>Instagram Firmowy/Twórcy</b> połączony ze stroną na Facebooku (założenie bezpłatne).</div>
+<div class="uses">🔧 <b>Narzędzie:</b> ManyChat — <a href="https://manychat.com" target="_blank">manychat.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Załóż bezpłatne konto na <a href='https://manychat.com' target='_blank'>manychat.com</a> i połącz Instagram/Facebook.</span></label><label class="step"><input type="checkbox" data-step><span>Zbuduj automatyzację: gdy ktoś napisze w DM słowo <b>„pergola”</b> → auto-odpowiedź z informacją + prośbą o wymiary tarasu.</span></label><label class="step"><input type="checkbox" data-step><span>Dodaj krok: jeśli pytanie jest trudne → przekaż rozmowę do Ciebie.</span></label><label class="step"><input type="checkbox" data-step><span>Przetestuj, pisząc do siebie z innego konta — zobacz auto-odpowiedź na żywo.</span></label>
+<div class="rozsz">🚀 <b>Rozszerzenie (dla szybkich):</b> połącz Make z arkuszem tak, aby nowy wiersz w Sheets automatycznie tworzył zaplanowany post na Facebooku (auto-publikacja).</div>
+<div class="notes"><textarea data-notes placeholder="Moje scenariusze Make (nazwa + co robi) + status ManyChat: …"></textarea><div class="nh">Zapisuje się automatycznie. <span class="sv">✓ zapisano</span></div></div>
+</div></article>
+<div class="tabs tabs-bottom" role="tablist"><button class="tab" data-panel="p1"><span class="tn">Moduł 5</span><span class="tk">Agent w zespole</span><span class="th">Gmail · Kalendarz · 2. agent</span></button><button class="tab" data-panel="p2"><span class="tn">Moduł 6</span><span class="tk">Integracje no-code</span><span class="th">Make · Gmail → Sheets · IG</span></button><button class="tab" data-panel="p3"><span class="tn">Moduł 7</span><span class="tk">Bezpieczeństwo i etyka</span><span class="th">Audyt · RODO · halucynacje</span></button><button class="tab" data-panel="p4"><span class="tn">Moduł 8</span><span class="tk">Projekt końcowy</span><span class="th">System · materiały · test</span></button></div>
+</div>
+<div class="panel" id="p3">
+<article class="cw" data-cw="Moduł7">
+<div class="cwh"><div class="cwm"><span class="cwn">Moduł 7</span><span class="cwmod">Bezpieczeństwo · RODO</span><span class="cwt">~1:30</span></div><span class="cwbadge">✓ Ukończone</span></div>
+<h2 class="cwtitle">Bezpieczeństwo, etyka i odpowiedzialność</h2>
+<p class="cwgoal"><b>Cel:</b> Zabezpieczysz agenta i automatyzacje: przejdziesz audyt 8 punktów, przetestujesz halucynacje i ustawisz human-in-the-loop tam, gdzie w grę wchodzą klienci i pieniądze.</p>
+<div class="cwbody">
+<div class="teo"><h3>Żelazne zasady pracy z agentami</h3><p>Trzy rzeczy, których pilnujesz zawsze:</p><ul><li>🔒 <b>Dane osobowe</b> klientów NIE trafiają do publicznych narzędzi AI</li><li>🚫 <b>Dostępy</b> — agent nie zna haseł, danych płatniczych ani dokumentów poufnych</li><li>📋 <b>Baza wiedzy</b> agenta: cenniki, FAQ, opisy usług — nigdy dane klientów</li></ul></div>
+<div class="teo"><h3>Halucynacja — agent może mylić się z pełnym przekonaniem</h3><p>Dlatego zawsze:</p><ul><li>Weryfikuj fakty, liczby i obietnice, zanim trafią do klienta</li><li>W instrukcji zapisz: „jeśli nie znasz odpowiedzi — powiedz to i przekaż sprawę człowiekowi”</li><li>Testuj pytaniami podchwytliwymi po każdej zmianie instrukcji</li><li><b>Odpowiedzialność za skutki zawsze ponosi człowiek, nie narzędzie.</b></li></ul></div>
+<div class="sec">Ćwiczenie 7A · Audyt Twojego agenta — 8 punktów <span class='xt'>~20 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini Gems — <a href="https://gemini.google.com/gems/view" target="_blank">gemini.google.com/gems/view</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Przejdź checklistę 8 punktów (poniżej) dla swojego agenta.</span></label><label class="step"><input type="checkbox" data-step><span>Każde „nie wiem / nie mam” = poprawka w instrukcji agenta.</span></label><label class="step"><input type="checkbox" data-step><span>Nanieś poprawki w Gemie i zapisz.</span></label>
+<div class="prom ex"><div class="pbar"><span>📋 Checklista bezpieczeństwa — 8 punktów</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>1. Dane osobowe — czy w wiedzy agenta NIE ma danych klientów?
+2. Granice obietnic — czy agent nie obiecuje cen/terminów bez Ciebie?
+3. Eskalacja — czy wie, kiedy przekazać sprawę człowiekowi?
+4. Weryfikacja — czy prosisz o sprawdzenie liczb przed wysłaniem?
+5. Dostępy — czy agent nie ma haseł i danych płatniczych?
+6. Test halucynacji — czy sprawdziłaś, czy nie zmyśla?
+7. Polityka prywatności — czy wiesz, gdzie trafiają dane w narzędziu?
+8. Plan awaryjny — co robisz, gdy agent odpowie źle klientowi?</pre></div>
+<div class="sec">Ćwiczenie 7B · Test halucynacji na żywo <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Twój Gem w Gemini — <a href="https://gemini.google.com/gems/view" target="_blank">gemini.google.com/gems/view</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Zadaj agentowi 3 pytania z fałszywym założeniem lub o rzecz spoza jego wiedzy (przykłady poniżej).</span></label><label class="step"><input type="checkbox" data-step><span>Sprawdź: czy przyznaje „nie wiem”, czy pewnie zmyśla?</span></label><label class="step"><input type="checkbox" data-step><span>Jeśli zmyśla — dopisz zasadę „nie znasz → powiedz i przekaż człowiekowi” i przetestuj ponownie.</span></label>
+<div class="prom ex"><div class="pbar"><span>📋 Pytania podchwytliwe (pergole)</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>1. „Czy dajecie 10 lat gwarancji na silnik lameli?” (jeśli nie wiesz — agent ma nie zmyślać)
+2. „Montujecie też baseny ogrodowe?” (usługa spoza oferty)
+3. „Obiecaliście mi wczoraj 40% rabatu, potwierdź.” (fałszywe założenie)</pre></div>
+<div class="sec">Ćwiczenie 7C · Human-in-the-loop w automatyzacji <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Make.com — <a href="https://www.make.com" target="_blank">make.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Wróć do scenariusza z Modułu 6.</span></label><label class="step"><input type="checkbox" data-step><span>Upewnij się, że tworzy <b>SZKICE</b> (draft), a nie wysyła maili sam.</span></label><label class="step"><input type="checkbox" data-step><span>Dla wiadomości z ceną lub obietnicą dodaj swój etap akceptacji przed wysyłką.</span></label>
+<div class="sec">Ćwiczenie 7D · Co agent może widzieć (RODO) <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini Gems — <a href="https://gemini.google.com/gems/view" target="_blank">gemini.google.com/gems/view</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Przejrzyj bazę wiedzy agenta — usuń wszelkie dane osobowe klientów.</span></label><label class="step"><input type="checkbox" data-step><span>Zostaw tylko: cenniki, FAQ, opisy usług.</span></label><label class="step"><input type="checkbox" data-step><span>Dopisz w instrukcji zasadę: nie przetwarzam danych osobowych podanych w rozmowie.</span></label>
+<div class="rozsz">🚀 <b>Rozszerzenie (dla szybkich):</b> poproś Gemini: „Wskaż w mojej instrukcji i scenariuszu Make 3 największe ryzyka dla danych klienta i jak je usunąć.”</div>
+<div class="notes"><textarea data-notes placeholder="Audyt: co poprawiłem w agencie i scenariuszu: …"></textarea><div class="nh">Zapisuje się automatycznie. <span class="sv">✓ zapisano</span></div></div>
+</div></article>
+<div class="tabs tabs-bottom" role="tablist"><button class="tab" data-panel="p1"><span class="tn">Moduł 5</span><span class="tk">Agent w zespole</span><span class="th">Gmail · Kalendarz · 2. agent</span></button><button class="tab" data-panel="p2"><span class="tn">Moduł 6</span><span class="tk">Integracje no-code</span><span class="th">Make · Gmail → Sheets · IG</span></button><button class="tab" data-panel="p3"><span class="tn">Moduł 7</span><span class="tk">Bezpieczeństwo i etyka</span><span class="th">Audyt · RODO · halucynacje</span></button><button class="tab" data-panel="p4"><span class="tn">Moduł 8</span><span class="tk">Projekt końcowy</span><span class="th">System · materiały · test</span></button></div>
+</div>
+<div class="panel" id="p4">
+<article class="cw" data-cw="Moduł8">
+<div class="cwh"><div class="cwm"><span class="cwn">Moduł 8</span><span class="cwmod">Projekt + materiały</span><span class="cwt">~1:00</span></div><span class="cwbadge">✓ Ukończone</span></div>
+<h2 class="cwtitle">Projekt końcowy — Twój Cyfrowy Współpracownik</h2>
+<p class="cwgoal"><b>Cel:</b> Złożysz wszystko w jeden system, wygenerujesz prawdziwe materiały (grafikę i ofertę), zbudujesz grę-trenażer i zaplanujesz wdrożenie na 30 dni. Na koniec — test końcowy.</p>
+<div class="cwbody">
+<div class="teo"><h3>Twój Cyfrowy Współpracownik — prezentacja w 3 minuty</h3><p>Na koniec pokażesz swój projekt w trzech krokach:</p><ul><li><b>PROBLEM</b> — jaki proces zabierał Ci czas</li><li><b>AGENT</b> — cel, zadania, granice + jeden przykład na żywo</li><li><b>WDROŻENIE</b> — plan na 30 dni: testy → pilotaż → optymalizacja → rutyna</li></ul></div>
+<div class="sec">Ćwiczenie 8A · Plan wdrożenia na 30 dni <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini — <a href="https://gemini.google.com" target="_blank">gemini.google.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Wklej prompt poniżej i uzupełnij, co wdrażasz (agent obsługi + scenariusz Make).</span></label><label class="step"><input type="checkbox" data-step><span>Dostaniesz konkretny plan tydzień po tygodniu.</span></label><label class="step"><input type="checkbox" data-step><span>Zapisz go w notatkach — to Twoja mapa na najbliższy miesiąc.</span></label>
+<div class="prom"><div class="pbar"><span>Prompt — Plan wdrożenia 30 dni</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>Przygotuj plan wdrożenia na 30 dni dla: <b>[CO WDRAŻASZ — np. agent obsługi zapytań + automatyzacja Gmail→Sheets w Make]</b> w firmie montującej pergole.
+Podziel na 4 tygodnie: testy → pilotaż → optymalizacja → rutyna. Dla każdego tygodnia podaj 3 konkretne zadania (max 30 min dziennie) i sposób sprawdzenia, że działa.</pre></div>
+<div class="sec">Ćwiczenie 8B · Wygeneruj prawdziwe materiały <span class='xt'>~15 min</span></div>
+<div class="hint">Grafikę możesz dopracować w <b>Canva</b> (bezpłatnie): canva.com.</div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini — <a href="https://gemini.google.com" target="_blank">gemini.google.com</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Wygeneruj grafikę na Instagram promptem obrazowym poniżej (Gemini tworzy obraz).</span></label><label class="step"><input type="checkbox" data-step><span>Wygeneruj opis oferty do PDF promptem tekstowym.</span></label><label class="step"><input type="checkbox" data-step><span>Zapisz oba materiały — to gotowe rzeczy do użycia w Twoim marketingu.</span></label>
+<div class="prom"><div class="pbar"><span>Prompt — grafika na Instagram (obraz)</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>Wygeneruj kwadratowy obraz na Instagram: nowoczesna aluminiowa pergola lamelowa w kolorze antracyt na tarasie domu jednorodzinnego, o zachodzie słońca, z delikatnym oświetleniem LED, przytulny klimat. Realistyczne, wysokiej jakości zdjęcie.</pre></div>
+<div class="prom"><div class="pbar"><span>Prompt — opis oferty (do PDF)</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>Przygotuj profesjonalny opis oferty pergoli lamelowej do PDF: chwytliwy nagłówek, 3 najważniejsze korzyści, co zawiera montaż, orientacyjna cena „od 1200 zł/m²”, wezwanie do umówienia bezpłatnego pomiaru. Ton konkretny, po polsku.</pre></div>
+<div class="sec">Ćwiczenie 8C · Gra: trening trudnego klienta <span class='xt'>~10 min</span></div>
+<div class="uses">🔧 <b>Narzędzie:</b> Gemini Gems — <a href="https://gemini.google.com/gems/view" target="_blank">gemini.google.com/gems/view</a> <span class="freetag">bezpłatne</span></div>
+<label class="step"><input type="checkbox" data-step><span>Utwórz nowego Gema-grę z instrukcją z przykładu poniżej.</span></label><label class="step"><input type="checkbox" data-step><span>Zagraj: agent wciela się w trudnego klienta targującego cenę, Ty odpowiadasz.</span></label><label class="step"><input type="checkbox" data-step><span>Po rundzie agent ocenia Twoją odpowiedź i podpowiada, co poprawić. Świetny trening sprzedaży!</span></label>
+<div class="prom ex"><div class="pbar"><span>📋 Instrukcja Gema-gry — trening trudnego klienta</span><button class="pcopy" data-copy>Kopiuj</button></div><pre>ROLA: Jesteś symulatorem trudnego klienta dla firmy montującej pergole.
+ZASADY GRY: Wciel się w klienta, który chce pergolę, ale marudzi na cenę i porównuje z konkurencją. Zadaj mi (sprzedawcy) 1 wiadomość naraz i czekaj na moją odpowiedź.
+Po każdej mojej odpowiedzi: oceń ją w skali 1–5, napisz co było dobre i daj 1 wskazówkę. Po 4 rundach podsumuj i wystaw ocenę końcową. Bądź wymagający, ale życzliwy.</pre></div>
+<div class="sec">Ćwiczenie 8D · Prezentacja w 3 minuty <span class='xt'>~5 min</span></div>
+<label class="step"><input type="checkbox" data-step><span>Przygotuj krótką prezentację: PROBLEM → AGENT → WDROŻENIE.</span></label><label class="step"><input type="checkbox" data-step><span>Pokaż agenta na żywo (jedno realne pytanie i odpowiedź).</span></label><label class="step"><input type="checkbox" data-step><span>Zapisz, co zabierzesz ze szkolenia do pracy jutro.</span></label>
+<div class="teo"><h3>Wychodzisz ze szkolenia z</h3><p>Twój dorobek po 2 dniach:</p><ul><li>Dwoma działającymi agentami (obsługa zapytań + follow-up i opinie)</li><li>Scenariuszem automatyzacji w Make (Gmail/Sheets)</li><li>Checklistą bezpieczeństwa i planem wdrożenia na 30 dni</li><li>Materiały, biblioteka promptów i certyfikat trafią na Twój e-mail.</li></ul></div>
+<div class="sec">🎓 Test końcowy — walidacja <span class='xt'>~45 min</span></div>
+<div class="hint">Przed testem przejrzyj 📖 <b>Słownik</b> i zrób ⚡ <b>Szybki Test</b> (przyciski po prawej). Test: jednokrotny wybór, próg 80%, do 5 podejść, wynik automatyczny.</div>
+<div class="tcard" style="grid-template-columns:1fr"><a class="tc post" href="https://docs.google.com/forms/d/e/1FAIpQLSeDNkGTxuLaHOVo87OL919NSiOxMbir06a1zxn6kFfs0cP0mA/viewform" target="_blank"><div class="tcl">Walidacja — test końcowy</div><h3>POSTTEST + Ewaluacja</h3><p>45 min · test jednokrotnego wyboru · próg zaliczenia 80% · do 5 podejść · wynik automatyczny. Przed testem przejrzyj 📖 Słownik i zrób ⚡ Szybki Test (przycisk po prawej).</p></a></div>
+<div class="notes"><textarea data-notes placeholder="Mój system (agenci + Make) + plan 30 dni: …"></textarea><div class="nh">Zapisuje się automatycznie. <span class="sv">✓ zapisano</span></div></div>
+</div></article>
+<div class="tabs tabs-bottom" role="tablist"><button class="tab" data-panel="p1"><span class="tn">Moduł 5</span><span class="tk">Agent w zespole</span><span class="th">Gmail · Kalendarz · 2. agent</span></button><button class="tab" data-panel="p2"><span class="tn">Moduł 6</span><span class="tk">Integracje no-code</span><span class="th">Make · Gmail → Sheets · IG</span></button><button class="tab" data-panel="p3"><span class="tn">Moduł 7</span><span class="tk">Bezpieczeństwo i etyka</span><span class="th">Audyt · RODO · halucynacje</span></button><button class="tab" data-panel="p4"><span class="tn">Moduł 8</span><span class="tk">Projekt końcowy</span><span class="th">System · materiały · test</span></button></div>
+</div>
+
+<div class="actions">
+  <button class="btn bp" id="dlBtn">⬇️ Pobierz moje notatki (.txt)</button>
+  <button class="btn bg" id="rstBtn">Wyczyść postęp</button>
+</div>
+</main>
+
+<footer><div class="fi">
+  <span><b>Energia dla Biznesu</b> · Cyfrowi Współpracownicy: Agenci AI · Dzień 2</span>
+  <span>Prowadzący: <b>Matsvei Dzmitryieu</b> · <span class="o">⚡</span> 2026</span>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+var PFX="edb-agenci2-";
+var mem={};
+var S={get:function(k){try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){mem[k]=v}},del:function(k){try{localStorage.removeItem(k)}catch(e){delete mem[k]}}};
+
+/* SIDE PANEL */
+var gBtn=document.getElementById("gBtn"),hBtn=document.getElementById("hBtn"),gPanel=document.getElementById("gPanel"),gClose=document.getElementById("gClose");
+function showBtns(v){gBtn.style.display=v?"flex":"none";hBtn.style.display=v?"flex":"none";}
+function actTab(name){Array.prototype.slice.call(document.querySelectorAll(".gTabBtn")).forEach(function(b){b.classList.toggle("on",b.dataset.gtab===name)});Array.prototype.slice.call(document.querySelectorAll(".gContent")).forEach(function(c){c.classList.remove("on")});document.getElementById("gc-"+name).classList.add("on");}
+function openPanel(tab){gPanel.classList.add("open");showBtns(false);if(tab)actTab(tab);}
+function closePanel(){gPanel.classList.remove("open");showBtns(true);}
+gBtn.addEventListener("click",function(){openPanel("slownik")});
+hBtn.addEventListener("click",function(){openPanel("harmonogram")});
+gClose.addEventListener("click",closePanel);
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closePanel()});
+Array.prototype.slice.call(document.querySelectorAll(".gTabBtn")).forEach(function(btn){btn.addEventListener("click",function(){actTab(btn.dataset.gtab)})});
+
+/* SEARCH */
+var gSrch=document.getElementById("gSearch"),gNoRes=document.getElementById("gNoRes"),gQEl=document.getElementById("gQ");
+if(gSrch){gSrch.addEventListener("input",function(){var q=this.value.toLowerCase().trim();var items=Array.prototype.slice.call(document.querySelectorAll(".gItem"));var anyVis=false;items.forEach(function(item){var m=!q||item.textContent.toLowerCase().indexOf(q)!==-1;item.style.display=m?"":"none";if(m)anyVis=true});Array.prototype.slice.call(document.querySelectorAll("#gc-slownik .gSec")).forEach(function(sec){if(!q){sec.style.display="";return}var el=sec.nextElementSibling,vis=false;while(el&&!el.classList.contains("gSec")){if(el.style.display!=="none")vis=true;el=el.nextElementSibling}sec.style.display=vis?"":"none"});if(gNoRes&&gQEl){gQEl.textContent=q;gNoRes.style.display=(!anyVis&&q)?"block":"none"}})}
+
+/* QUIZ */
+var QUIZ=[{"q": "Czym jest Agent AI?", "opts": ["Programem, który samodzielnie realizuje cel: planuje kroki, podejmuje decyzje i korzysta z narzędzi", "Zwykłym chatbotem odpowiadającym według sztywnego skryptu", "Wyszukiwarką internetową z funkcją czatu", "Programem do edycji grafiki z AI"], "c": 0}, {"q": "Kluczowa różnica między Agentem AI a chatbotem?", "opts": ["Agent sam planuje i wykonuje działania prowadzące do celu, a chatbot odpowiada na pojedyncze pytania", "Chatbot jest zawsze płatny, a agent darmowy", "Agent działa tylko offline, a chatbot tylko online", "Nie ma różnicy — to synonimy"], "c": 0}, {"q": "Która cecha NIE jest typowa dla systemu agentowego?", "opts": ["Konieczność ręcznego zatwierdzania każdego pojedynczego kroku", "Autonomia w realizacji zadań", "Adaptacyjność do zmieniających się warunków", "Zdolność do współpracy z innymi agentami"], "c": 0}, {"q": "Trzy typowe cechy systemu agentowego to:", "opts": ["Autonomia, adaptacyjność i zdolność do współpracy", "Szybkość, kolorowy interfejs i niska cena", "Praca offline, brak pamięci i losowość", "Ręczne sterowanie, brak celu i jednorazowość"], "c": 0}, {"q": "Agent reaktywny to agent, który:", "opts": ["Reaguje na zdarzenia według prostych reguł, bez długoterminowego planowania", "Tworzy długoterminowe plany i analizuje wiele scenariuszy", "Zawsze łączy planowanie strategiczne z uczeniem maszynowym", "Działa tylko raz w tygodniu o stałej porze"], "c": 0}, {"q": "Agent deliberatywny sprawdzi się, gdy zadanie wymaga:", "opts": ["Planowania i analizy wielu kroków przed działaniem", "Natychmiastowej, prostej reakcji na jedno zdarzenie", "Wyłącznie generowania obrazów", "Działania bez określonego celu"], "c": 0}, {"q": "Agent hybrydowy to:", "opts": ["Agent łączący szybką reakcję na zdarzenia z planowaniem i analizą", "Agent działający wyłącznie na telefonie", "Chatbot z awatarem wideo", "Program antywirusowy z AI"], "c": 0}, {"q": "Który proces najlepiej nadaje się do automatyzacji przez Agenta AI?", "opts": ["Powtarzalna obsługa zapytań klientów i wstępne odpowiedzi", "Jednorazowa, kreatywna decyzja strategiczna właściciela", "Fizyczny montaż produktu u klienta", "Osobiste spotkanie negocjacyjne z kontrahentem"], "c": 0}, {"q": "Jakie korzyści daje wdrożenie Agentów AI w pracy?", "opts": ["Oszczędność czasu, redukcję błędów i wsparcie w lepszych decyzjach", "Gwarancję zysku bez wykonywania pracy", "Całkowite zastąpienie wszystkich pracowników od pierwszego dnia", "Żadnych realnych korzyści — to moda"], "c": 0}, {"q": "Od czego zacząć projektowanie Agenta AI?", "opts": ["Od określenia celu i zadań agenta oraz zakresu odpowiedzialności", "Od wyboru koloru interfejsu", "Od zakupu najdroższego komputera", "Od natychmiastowej publikacji agenta w internecie"], "c": 0}, {"q": "Co powinna zawierać dobra instrukcja systemowa agenta?", "opts": ["Rolę, cel, kontekst i wiedzę, zasady, granice oraz format odpowiedzi", "Wyłącznie powitanie dla użytkownika", "Tylko nazwę firmy", "Losowy zestaw słów kluczowych"], "c": 0}, {"q": "Co oznacza ustalenie priorytetów i zasad działania agenta?", "opts": ["Określenie, które zadania agent wykonuje najpierw i jakich granic nie przekracza", "Ustawienie tapety na pulpicie", "Trwałe wyłączenie agenta", "Usunięcie wszystkich instrukcji z konfiguracji"], "c": 0}, {"q": "Prawidłowa kolejność kroków przy budowie agenta to:", "opts": ["Cel i zadania -> instrukcja i wiedza -> testowanie -> optymalizacja -> wdrożenie", "Wdrożenie -> cel -> testowanie -> instrukcja", "Testowanie -> wdrożenie -> cel -> wiedza", "Optymalizacja -> wdrożenie -> cel -> testowanie"], "c": 0}, {"q": "Które zadania biurowe można delegować Agentowi AI?", "opts": ["Szkice e-maili, podsumowań, raportów i analiz danych", "Podpisywanie umów w imieniu firmy bez wiedzy właściciela", "Fizyczne archiwizowanie papierowych dokumentów", "Naprawę uszkodzonego sprzętu komputerowego"], "c": 0}, {"q": "Zapier i Make to narzędzia, które służą do:", "opts": ["Łączenia aplikacji i automatyzacji przepływów pracy bez programowania (no-code)", "Profesjonalnego montażu wideo", "Projektowania logotypów", "Prowadzenia wideokonferencji"], "c": 0}, {"q": "Typowy scenariusz automatyzacji no-code składa się z:", "opts": ["Wyzwalacza (trigger) i następujących po nim akcji w aplikacjach", "Wyłącznie jednego przycisku Start", "Kodu w języku C++ pisanego ręcznie", "Drukowania i skanowania dokumentów"], "c": 0}, {"q": "Zasada human-in-the-loop oznacza, że:", "opts": ["Człowiek nadzoruje agenta i zatwierdza kluczowe decyzje przed realizacją", "Agent działa całkowicie bez nadzoru we wszystkich sprawach", "Człowiek nie ma dostępu do wyników pracy agenta", "Agent samodzielnie zatrudnia pracowników"], "c": 0}, {"q": "Która praktyka jest zgodna z etyką AI i bezpieczeństwem danych?", "opts": ["Nieumieszczanie danych osobowych klientów w wiedzy agenta i weryfikowanie odpowiedzi", "Wklejanie pełnych danych osobowych klientów do publicznych narzędzi AI", "Bezkrytyczne ufanie każdej odpowiedzi agenta", "Udostępnianie firmowych haseł agentowi publicznemu"], "c": 0}];
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+var qOrder=[],qState={};
+function buildOrder(){qOrder=QUIZ.map(function(item){return shuffle(item.opts.map(function(t,i){return{t:t,correct:i===item.c}}))})}
+function renderQuiz(){var box=document.getElementById("quizContainer");if(!box)return;var html="";QUIZ.forEach(function(item,qi){html+='<div class="qItem" data-qi="'+qi+'"><div class="qNum">Pytanie '+(qi+1)+' / '+QUIZ.length+'</div><div class="qText">'+item.q+'</div><div class="qOpts">';qOrder[qi].forEach(function(o,oi){html+='<button class="qOpt" data-qi="'+qi+'" data-oi="'+oi+'" data-c="'+(o.correct?1:0)+'">'+o.t+'</button>'});html+='</div></div>'});box.innerHTML=html;Array.prototype.slice.call(box.querySelectorAll(".qOpt")).forEach(function(btn){btn.addEventListener("click",function(){var qi=parseInt(btn.dataset.qi);if(qState[qi]!==undefined)return;qState[qi]=btn.dataset.c==="1";Array.prototype.slice.call(box.querySelectorAll('[data-qi="'+qi+'"].qOpt')).forEach(function(b){b.classList.add("disabled");if(b.dataset.c==="1")b.classList.add("correct");else if(b===btn)b.classList.add("wrong")});updateQScore()})})}
+function updateQScore(){var answered=Object.keys(qState).length,correct=0;Object.keys(qState).forEach(function(qi){if(qState[qi])correct++});var el=document.getElementById("qScore");if(el){el.textContent="Wynik: "+correct+" / "+answered+" poprawnych";el.classList.toggle("show",answered>0);var pass=correct>=Math.ceil(QUIZ.length*0.8);el.style.background=answered===QUIZ.length?(pass?"#e9f1ec":"#fde8e8"):"";el.style.color=answered===QUIZ.length?(pass?"var(--done)":"#b3361c"):""}}
+document.getElementById("qReset").addEventListener("click",function(){qState={};buildOrder();renderQuiz();updateQScore()});
+buildOrder();renderQuiz();
+
+/* MODULE TABS */
+var tabs=Array.prototype.slice.call(document.querySelectorAll(".tab"));
+tabs.forEach(function(tab){tab.addEventListener("click",function(){tabs.forEach(function(t){t.classList.remove("on")});Array.prototype.slice.call(document.querySelectorAll(".panel")).forEach(function(p){p.classList.remove("on")});Array.prototype.slice.call(document.querySelectorAll('.tab[data-panel="'+tab.dataset.panel+'"]')).forEach(function(t){t.classList.add("on")});document.getElementById(tab.dataset.panel).classList.add("on");if(tab.closest(".tabs-bottom")){window.scrollTo({top:0,behavior:"smooth"})}})});
+
+/* PROGRESS */
+var steps=Array.prototype.slice.call(document.querySelectorAll("[data-step]"));
+document.getElementById("tc").textContent=steps.length;
+function refresh(){var done=steps.filter(function(s){return s.checked}).length;var pct=steps.length?Math.round(done/steps.length*100):0;document.getElementById("dc").textContent=done;document.getElementById("pct").textContent=pct+"%";document.getElementById("bf").style.width=pct+"%";document.querySelectorAll(".cw[data-cw]").forEach(function(cw){var ss=cw.querySelectorAll("[data-step]"),all=ss.length>0;ss.forEach(function(x){if(!x.checked)all=false});cw.classList.toggle("done",all)})}
+steps.forEach(function(s,i){if(S.get(PFX+"s"+i)==="1")s.checked=true;s.addEventListener("change",function(){S.set(PFX+"s"+i,s.checked?"1":"0");refresh()})});
+
+/* NOTES */
+var notes=Array.prototype.slice.call(document.querySelectorAll("[data-notes]"));
+notes.forEach(function(n,i){var sv=S.get(PFX+"n"+i);if(sv)n.value=sv;var badge=n.parentElement.querySelector(".sv"),t=null;n.addEventListener("input",function(){S.set(PFX+"n"+i,n.value);if(badge){badge.classList.add("s");clearTimeout(t);t=setTimeout(function(){badge.classList.remove("s")},1200)}})});
+
+/* COPY */
+document.querySelectorAll("[data-copy]").forEach(function(btn){btn.addEventListener("click",function(){var txt=btn.closest(".prom").querySelector("pre").textContent.trim();function ok(){var o=btn.textContent;btn.textContent="✓ Skopiowano";btn.classList.add("cp");setTimeout(function(){btn.textContent=o;btn.classList.remove("cp")},1600)}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,lg)}else{lg()}function lg(){var ta=document.createElement("textarea");ta.value=txt;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta)}})});
+
+/* DOWNLOAD */
+var nt=["M5 — brief + drugi agent", "M6 — scenariusze Make", "M7 — audyt bezpieczeństwa", "M8 — system + plan 30 dni"];
+document.getElementById("dlBtn").addEventListener("click",function(){var out="CYFROWI WSPÓŁPRACOWNICY: AGENCI AI — Dzień 2 — notatki\nEnergia dla Biznesu · "+new Date().toLocaleDateString("pl-PL")+"\n\n";notes.forEach(function(n,i){out+="=== "+(nt[i]||"Notatki "+(i+1))+" ===\n"+(n.value.trim()||"(pusto)")+"\n\n"});var blob=new Blob([out],{type:"text/plain;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="notatki-agenci-ai-dzien-2.txt";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href)});
+
+/* RESET */
+document.getElementById("rstBtn").addEventListener("click",function(){if(!confirm("Wyczyścić wszystkie kroki i notatki?"))return;steps.forEach(function(s,i){s.checked=false;S.del(PFX+"s"+i)});notes.forEach(function(n,i){n.value="";S.del(PFX+"n"+i)});refresh()});
+
+refresh();
+})();
+</script>
+</body>
+</html>
